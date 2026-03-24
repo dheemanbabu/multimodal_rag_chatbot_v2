@@ -36,32 +36,4 @@ To run the project on your localhost, you will use `uvicorn` to start the FastAP
 
 ---
 
-## 🐙 Pushing to GitHub
-
-To build your new repository and push this project to GitHub under your username (`dheemanbabu`), follow these steps in your terminal:
-
-1. **Initialize Git & Commit**:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit of Multimodal RAG Chatbot"
-   ```
-
-2. **Create the Repository on GitHub**:
-   *You can do this via the GitHub website (create a new empty repo named `multimodal_rag_chatbot`), or using the GitHub CLI (`gh`):*
-   ```bash
-   gh repo create multimodal_rag_chatbot --public --source=. --remote=origin
-   ```
-
-3. **Link and Push**:
-   *(If you created the repo via the GitHub website instead of the CLI, link it first)*:
-   ```bash
-   git remote add origin https://github.com/dheemanbabu/multimodal_rag_chatbot.git
-   ```
-   *Then push your code:*
-   ```bash
-   git branch -M main
-   git push -u origin main
-   ```
-
-Note: The included `.gitignore` will ensure that your `.env` file containing sensitive keys, IDE folders, and large `.gguf` local model files are not uploaded to GitHub.
+<img width="1012" height="608" alt="image" src="https://github.com/user-attachments/assets/02dbcf9e-5b46-43a6-adaa-1139c4e61b37" />
