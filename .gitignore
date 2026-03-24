@@ -1,0 +1,25 @@
+# Environments
+.env
+.venv/
+venv/
+env/
+
+# Secrets and keys
+*key*
+*.key
+keys/
+credentials.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large AI Models
+*.gguf
+*.bin
+*.model
+
+# IDEs
+.vscode/
+.idea/

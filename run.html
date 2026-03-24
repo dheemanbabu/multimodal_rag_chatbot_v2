@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Chatbot</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .chat-container { width: 100%; max-width: 800px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; height: 90vh; }
+        .header { background-color: #007bff; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; }
+        
+        .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .message { padding: 12px 18px; border-radius: 18px; max-width: 80%; line-height: 1.5; word-wrap: break-word; }
+        .bot { background-color: #e4e6eb; color: #050505; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .user { background-color: #0084ff; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        
+        .image-container { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        .image-container img { width: 200px; height: 150px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 1px solid #ddd; transition: transform 0.2s; }
+        .image-container img:hover { transform: scale(1.05); }
+
+        .input-area { padding: 20px; border-top: 1px solid #ddd; display: flex; gap: 10px; background-color: #fff; }
+        input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 24px; outline: none; font-size: 1rem; }
+        input:focus { border-color: #007bff; }
+        button { padding: 10px 25px; background-color: #007bff; color: white; border: none; border-radius: 24px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #b0c4de; cursor: not-allowed; }
+
+        /* Loading Spinner */
+        .loader { display: none; margin-left: 10px; border: 4px solid #f3f3f3; border-top: 4px solid #007bff; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; align-self: center; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="header">AI Assistant (PDF + Images)</div>
+        <div class="messages" id="chat-box">
+            <div class="message bot">Hello! I am ready. Ask me about your documents or images.</div>
+        </div>
+        
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Type a message..." onkeypress="handleEnter(event)">
+            <div class="loader" id="loader"></div>
+            <button onclick="sendMessage()" id="send-btn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const loader = document.getElementById('loader');
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // 1. Display User Message
+            addMessage(text, 'user');
+            userInput.value = '';
+            
+            // 2. UI Loading State
+            sendBtn.disabled = true;
+            loader.style.display = 'block';
+
+            try {
+                // 3. Send to Server
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+
+                if (!response.ok) throw new Error("Server error");
+
+                const data = await response.json();
+
+                // 4. Display Bot Answer
+                addMessage(data.answer, 'bot', data.images);
+
+            } catch (error) {
+                console.error(error);
+                addMessage("Sorry, something went wrong connecting to the server.", 'bot');
+            } finally {
+                sendBtn.disabled = false;
+                loader.style.display = 'none';
+            }
+        }
+
+        function addMessage(text, sender, images = []) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            
+            // Text Content
+            const textNode = document.createElement('div');
+            textNode.innerText = text;
+            msgDiv.appendChild(textNode);
+
+            // Image Content (if any)
+            if (images && images.length > 0) {
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'image-container';
+                
+                images.forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.onclick = () => window.open(url, '_blank'); // Open full size on click
+                    imgContainer.appendChild(img);
+                });
+                msgDiv.appendChild(imgContainer);
+            }
+
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight; // Auto scroll to bottom
+        }
+    </script>
+
+</body>
+</html>
